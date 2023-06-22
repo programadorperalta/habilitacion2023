@@ -1,4 +1,11 @@
 .leaflet-container {
-    width: 500px;
+    width: 700px;
     height: 500px;
+}
+
+.leaflet-top.leaflet-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 98%;
 }

@@ -3,9 +3,12 @@ import 'leaflet/dist/leaflet.css'
 import '@geoapify/leaflet-address-search-plugin';
 import { useEffect, useState } from 'react';
 import './Mapa.css'
+import axios from 'axios';
 import Header from '../Header/header.tsx';
+import ListaPuntos from '../ListaPuntos/ListaPuntos';
 
 const Mapa = () => {
+    const myAPIKey = "38bf763b78744c80bb5671ef040b927c";
 
     const [puntosMapa, setPuntosMapa] = useState([]);
     const [mapa, setMapa] = useState();
@@ -13,36 +16,57 @@ const Mapa = () => {
 
 
     const agregarPuntos = (punto) => {
-    setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
+        setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
     }
 
-    useEffect(()=>{
-        console.log(puntosMapa);   
-     }, [puntosMapa])
+    function eliminarPunto(punto){
+        let aux = [];
+
+        puntosMapa.forEach((puntoActual) => {
+            if(puntoActual[0] != punto[0] || puntoActual[1] != punto[1]){
+                aux.push(puntoActual);
+            }
+        })
+
+        setPuntosMapa(aux);
+    }
+
+    const limpiarPuntos = () => {
+        setPuntosMapa([]);
+    }
+
+    const getNombreByCoordenadas = async (latitud, longitud) => {
+        let response = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitud}&lon=${longitud}&format=json&apiKey=${myAPIKey}`);
+        return (response.data.results[0].address_line1 + ' ' + response.data.results[0].address_line2);
+    }
+
+    useEffect(() => {
+        console.log(puntosMapa);
+    }, [puntosMapa])
 
 
-   
+
 
     let IsLoaded = false;
 
-    useEffect (() => {
-        if(IsLoaded) return;
+    useEffect(() => {
+        if (IsLoaded) return;
         IsLoaded = true;
         let map = L.map('map').setView([-26.83261080003296, -65.19707679748537], 13);
         setMarcadores(L.layerGroup());
         setMapa(map);
     }, [])
 
-    useEffect(()=>{
-        if(mapa == undefined) return;
+    useEffect(() => {
+        if (mapa == undefined) return;
 
-        for(let layer in mapa._layers){
-            if(mapa._layers[layer] instanceof L.Marker){
+        for (let layer in mapa._layers) {
+            if (mapa._layers[layer] instanceof L.Marker) {
                 mapa.removeLayer(mapa._layers[layer]);
             }
         }
 
-        puntosMapa.forEach((punto)=>{
+        puntosMapa.forEach((punto) => {
             let lat = punto[0];
             let lon = punto[1];
             L.marker([lat, lon]).addTo(mapa);
@@ -50,30 +74,34 @@ const Mapa = () => {
     }, [puntosMapa, mapa])
 
     useEffect(() => {
-        if(mapa == undefined) return;
+        if (mapa == undefined) return;
         var marker = null;
 
-        var myAPIKey = "38bf763b78744c80bb5671ef040b927c"; // Get an API Key on https://myprojects.geoapify.com
+        // Get an API Key on https://myprojects.geoapify.com
         var mapURL = L.Browser.retina
             ? `https://maps.geoapify.com/v1/tile/{mapStyle}/{z}/{x}/{y}.png?apiKey=${myAPIKey}`
             : `https://maps.geoapify.com/v1/tile/{mapStyle}/{z}/{x}/{y}@2x.png?apiKey=${myAPIKey}`;
 
+        //https://tile.openstreetmap.org/{z}/{x}/{y}.png
         // Add map tiles layer. Set 20 as the maximal zoom and provide map data attribution.
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Powered by Geoapify | © OpenMapTiles © OpenStreetMap contributors',
+        L.tileLayer(mapURL, {
+            attribution: 'Powered by Los Pibes del Barrio',
             apiKey: myAPIKey,
             mapStyle: "osm-bright-smooth", // More map styles on https://apidocs.geoapify.com/docs/maps/map-tiles/
             maxZoom: 19
         }).addTo(mapa);
-     
-        mapa.on('click', function(e) {
+
+        mapa.on('click', async function (e) {
             var latLng = e.latlng;
             var lat = latLng.lat;
-            var lng = latLng.lng;    
-            agregarPuntos([lat, lng]);    
-          });
-        
-          // Add Geoapify Address Search control
+            var lng = latLng.lng;
+
+            let name = await getNombreByCoordenadas(lat, lng);
+
+            agregarPuntos([lat, lng, name]);
+        });
+
+        // Add Geoapify Address Search control
         const addressSearchControl = L.control.addressSearch(myAPIKey, {
             position: 'topleft',
             resultCallback: (address) => {
@@ -85,7 +113,8 @@ const Mapa = () => {
                     return;
                 }
 
-                marker = L.marker([address.lat, address.lon]).addTo(mapa);
+                agregarPuntos([address.lat, address.lon, address.address_line1 + " " + address.address_line2]);
+                //marker = L.marker([address.lat, address.lon]).addTo(mapa);
                 if (address.bbox && address.bbox.lat1 !== address.bbox.lat2 && address.bbox.lon1 !== address.bbox.lon2) {
                     mapa.fitBounds([[address.bbox.lat1, address.bbox.lon1], [address.bbox.lat2, address.bbox.lon2]], { padding: [100, 100] })
                 } else {
@@ -104,32 +133,38 @@ const Mapa = () => {
         <>
             <div className='bg-black flex'>
                 <div className='col'>
-                <div className="row text-white justify-center flex p-2 text-xl">
-                <h1>RouteOptimizer</h1>
-                </div>
-                <div className="row">
-                <div id='map'></div>
-                </div>
-                <div className="row justify-center">
-                    <div className="flex space-x-4 justify-between p-2">
-                    <button className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    <h1
-                        className='text-white'
-                    >Indicar Puntos</h1>
-                    </button>
+                    <div className="row text-white justify-center flex p-2 text-xl">
+                        <h1>RouteOptimizer</h1>
+                    </div>
+                    <div className="row">
 
-                <button
-                className="bg-green-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                <h1
-                    className='text-white'
-                >Optimizar Ruta</h1>
-                </button>
+                        <div id='map'></div>
+
+
+                    </div>
+                    <div className="row justify-center">
+                        <div className="flex space-x-4 justify-between p-2">
+                            <button onClick={limpiarPuntos} className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                <h1
+                                    className='text-white'
+                                >Limpiar Puntos</h1>
+                            </button>
+
+                            <button
+                                className="bg-green-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                <h1
+                                    className='text-white'
+                                >Optimizar Ruta</h1>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div className="col text-white">
+                    <ListaPuntos eliminar={eliminarPunto} puntos={puntosMapa}></ListaPuntos>
                 </div>
-                 
+
             </div>
-            
+
         </>
     )
 }
