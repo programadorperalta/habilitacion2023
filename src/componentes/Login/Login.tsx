@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import Usuario from '../../models/User/User'
 import * as Yup from 'yup';
 import Formulario from '../Formulario/Formulario.tsx';
-
+import { useNavigate } from 'react-router-dom';
+import Header from '../Header/header.tsx';
 
 const Login = () => {
 
-  
+    const navigate = useNavigate();
+    
     //Hooks
     const [usuario,setUsuario] = useState<Usuario>({
         firstName:'',
@@ -35,7 +37,9 @@ const Login = () => {
     };
 
     const handleSignIn = () => {
-      
+      //Validaciones y busqueda del usuario en la db y luego acceder a la vista
+
+      navigate('/mapa');
     }
 
     const handleSignUp = () => {
@@ -51,18 +55,7 @@ const Login = () => {
 
 
     <div className='mb-2'>
-
-    <div 
-    className='w-40 h-40 mx-auto animate__animated animate__tada'
-    >
-      <img 
-        src="https://png.pngtree.com/png-vector/20220805/ourmid/pngtree-route-maps-png-image_6099764.png"
-        alt='Logo'/>
-    </div>
-     
-        <h1
-        className='text-white mb-10 text-2xl text-center animate__animated animate__backInLeft'
-        >RouteOptimizer</h1>
+      <Header/>
         <div className="form mb-4">
 
           <div className="inputs animate__animated animate__backInRight ">
@@ -88,12 +81,15 @@ const Login = () => {
           </div>
         
 
-        <div className="p-2 mb-2 flex-1 px-4 space-x-2">
+
+        <div className="p-2 mb-2 flex-1 px-4 space-x-2 ">
           <button
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleSignIn}
           >
-            Sign In
+            <h1
+            className='text-white'
+            >Sign In</h1>
           </button>
 
           <button

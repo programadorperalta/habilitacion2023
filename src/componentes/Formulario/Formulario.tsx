@@ -22,7 +22,7 @@ const Formulario = () => {
     password: Yup.string().required('La contraseña es requerida'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir')
-      .required('Confirmar contraseña es requerido')
+      .required('La confirmacion de la contraseña es requerida')
   });
 
   const handleSubmit = (values, { setSubmitting }) => {

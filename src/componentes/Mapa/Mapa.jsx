@@ -3,10 +3,25 @@ import 'leaflet/dist/leaflet.css'
 import '@geoapify/leaflet-address-search-plugin';
 import { useEffect, useState } from 'react';
 import './Mapa.css'
+import Header from '../Header/header.tsx';
 
-const Mapa = (props) => {
+const Mapa = () => {
+
+    const [puntosMapa, setPuntosMapa] = useState([]);
     const [mapa, setMapa] = useState();
     const [marcadores, setMarcadores] = useState();
+
+
+    const agregarPuntos = (punto) => {
+    setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
+    }
+
+    useEffect(()=>{
+        console.log(puntosMapa);   
+     }, [puntosMapa])
+
+
+   
 
     let IsLoaded = false;
 
@@ -27,12 +42,12 @@ const Mapa = (props) => {
             }
         }
 
-        props.puntos.forEach((punto)=>{
+        puntosMapa.forEach((punto)=>{
             let lat = punto[0];
             let lon = punto[1];
             L.marker([lat, lon]).addTo(mapa);
         })
-    }, [props.puntos, mapa])
+    }, [puntosMapa, mapa])
 
     useEffect(() => {
         if(mapa == undefined) return;
@@ -55,7 +70,7 @@ const Mapa = (props) => {
             var latLng = e.latlng;
             var lat = latLng.lat;
             var lng = latLng.lng;    
-            props.agregarPunto([lat, lng]);    
+            agregarPuntos([lat, lng]);    
           });
         
           // Add Geoapify Address Search control
@@ -87,7 +102,34 @@ const Mapa = (props) => {
 
     return (
         <>
-            <div id='map'></div>
+            <div className='bg-black flex'>
+                <div className='col'>
+                <div className="row text-white justify-center flex p-2 text-xl">
+                <h1>RouteOptimizer</h1>
+                </div>
+                <div className="row">
+                <div id='map'></div>
+                </div>
+                <div className="row justify-center">
+                    <div className="flex space-x-4 justify-between p-2">
+                    <button className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    <h1
+                        className='text-white'
+                    >Indicar Puntos</h1>
+                    </button>
+
+                <button
+                className="bg-green-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                <h1
+                    className='text-white'
+                >Optimizar Ruta</h1>
+                </button>
+                    </div>
+                </div>
+                </div>
+                 
+            </div>
+            
         </>
     )
 }
