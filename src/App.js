@@ -3,23 +3,29 @@ import './App.css';
 import Mapa from './componentes/Mapa/Mapa';
 import ListaPuntos from './componentes/ListaPuntos/ListaPuntos';
 import { useEffect, useState } from 'react';
+import Login from './componentes/Login/Login.tsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import 'animate.css';
+import Header from './componentes/Header/header.tsx';
 
 function App() {
-  const [puntosMapa, setPuntosMapa] = useState([]);
-
-  const agregarPuntos = (punto) => {
-    setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
-  }
-
-  useEffect(()=>{
-    console.log(puntosMapa);   
-  }, [puntosMapa])
 
   return (
-    <div className="App">
-      <Mapa agregarPunto={agregarPuntos} puntos={puntosMapa} />
-      <ListaPuntos />
+  <div className='bg-black flex items-center justify-center h-screen'>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login/>}/>
+        <Route path="/puntos" element={<ListaPuntos/>}/>
+        <Route path="/mapa" element={<Mapa/>}/>
+      </Routes>
+    </Router>
     </div>
+    // 
+    //   <Login/>
+    //   {/* <Mapa agregarPunto={agregarPuntos} puntos={puntosMapa} />
+    //   <ListaPuntos /> */}
+    // 
   );
 }
 
