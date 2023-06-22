@@ -19,11 +19,11 @@ const Mapa = () => {
         setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
     }
 
-    function eliminarPunto(punto){
+    function eliminarPunto(punto) {
         let aux = [];
 
         puntosMapa.forEach((puntoActual) => {
-            if(puntoActual[0] != punto[0] || puntoActual[1] != punto[1]){
+            if (puntoActual[0] != punto[0] || puntoActual[1] != punto[1]) {
                 aux.push(puntoActual);
             }
         })
@@ -40,9 +40,18 @@ const Mapa = () => {
         return (response.data.results[0].address_line1 + ' ' + response.data.results[0].address_line2);
     }
 
+    const rutaTest = () => {
+        //Crear una capa de ruta con las coordenadas
+        const routeLayer = L.polyline(puntosMapa, { color: "red" }).addTo(mapa);
+
+        // Ajustar el mapa para mostrar la ruta
+        mapa.fitBounds(routeLayer.getBounds());
+    }
+
     useEffect(() => {
         console.log(puntosMapa);
     }, [puntosMapa])
+
 
 
 
@@ -127,6 +136,7 @@ const Mapa = () => {
         });
         mapa.addControl(addressSearchControl);
         L.control.zoom({ position: 'bottomright' }).addTo(mapa);
+
     }, [mapa])
 
     return (
@@ -151,6 +161,7 @@ const Mapa = () => {
                             </button>
 
                             <button
+                                onClick={rutaTest}
                                 className="bg-green-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                                 <h1
                                     className='text-white'
