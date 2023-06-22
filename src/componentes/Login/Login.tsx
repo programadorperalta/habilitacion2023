@@ -8,7 +8,7 @@ import Header from '../Header/header.tsx';
 const Login = () => {
 
     const navigate = useNavigate();
-
+    
     //Hooks
     const [usuario,setUsuario] = useState<Usuario>({
         firstName:'',
@@ -37,7 +37,6 @@ const Login = () => {
     };
 
     const handleSignIn = () => {
-
       //Validaciones y busqueda del usuario en la db y luego acceder a la vista
 
       navigate('/mapa');
@@ -81,6 +80,7 @@ const Login = () => {
         />
           </div>
         
+
 
         <div className="p-2 mb-2 flex-1 px-4 space-x-2 ">
           <button
