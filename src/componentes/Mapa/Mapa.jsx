@@ -24,6 +24,7 @@ const Mapa = () => {
     }
 
     function eliminarPunto(punto) {
+        clearRoute();
         let aux = [];
 
         puntosMapa.forEach((puntoActual) => {
