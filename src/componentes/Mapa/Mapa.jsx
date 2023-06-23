@@ -6,6 +6,9 @@ import './Mapa.css'
 import axios from 'axios';
 import Header from '../Header/header.tsx';
 import ListaPuntos from '../ListaPuntos/ListaPuntos';
+import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import "leaflet-routing-machine";
 
 const Mapa = () => {
     const myAPIKey = "38bf763b78744c80bb5671ef040b927c";
@@ -14,6 +17,7 @@ const Mapa = () => {
     const [mapa, setMapa] = useState();
     const [marcadores, setMarcadores] = useState();
 
+    let routingControl;
 
     const agregarPuntos = (punto) => {
         setPuntosMapa((puntosMapa) => [...puntosMapa, punto]);
@@ -33,6 +37,7 @@ const Mapa = () => {
 
     const limpiarPuntos = () => {
         setPuntosMapa([]);
+        clearRoute();
     }
 
     const getNombreByCoordenadas = async (latitud, longitud) => {
@@ -41,19 +46,30 @@ const Mapa = () => {
     }
 
     const rutaTest = () => {
-        //Crear una capa de ruta con las coordenadas
-        const routeLayer = L.polyline(puntosMapa, { color: "red" }).addTo(mapa);
-
-        // Ajustar el mapa para mostrar la ruta
-        mapa.fitBounds(routeLayer.getBounds());
+       routingControl =  L.Routing.control({
+            waypoints: puntosMapa.map(([lat, lng]) => L.latLng(lat, lng)),
+          }).addTo(mapa);
     }
 
     useEffect(() => {
-        console.log(puntosMapa);
+        // console.log(puntosMapa);
     }, [puntosMapa])
 
 
-
+    const clearRoute = () => {
+        if (routingControl) {
+          routingControl.getPlan().setWaypoints([]);
+          mapa.removeControl(routingControl);
+          routingControl = null;
+          const routingContainer = document.getElementsByClassName(
+            "leaflet-routing-container"
+          )[0];
+          if (routingContainer) {
+            routingContainer.remove();
+          }
+          
+        }
+      };
 
 
     let IsLoaded = false;
@@ -131,7 +147,7 @@ const Mapa = () => {
                 }
             },
             suggestionsCallback: (suggestions) => {
-                console.log(suggestions);
+                // console.log(suggestions);
             }
         });
         mapa.addControl(addressSearchControl);

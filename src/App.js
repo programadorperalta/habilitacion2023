@@ -14,7 +14,7 @@ function App() {
 
   return (
 
-  <div className='bg-black flex items-center justify-center h-screen'>
+  <div className='bg-black flex items-center justify-center relative h-screen'>
     <Router>
       <Routes>
         <Route path="/" element={<Login/>}/>
